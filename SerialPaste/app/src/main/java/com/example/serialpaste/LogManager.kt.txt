@@ -1,0 +1,12 @@
+package com.example.serialpaste
+
+object LogManager {
+    private val logs = StringBuilder()
+
+    var onLog: ((String) -> Unit)? = null
+
+    fun log(msg: String) {
+        logs.append(msg).append("\n")
+        onLog?.invoke(msg)
+    }
+}

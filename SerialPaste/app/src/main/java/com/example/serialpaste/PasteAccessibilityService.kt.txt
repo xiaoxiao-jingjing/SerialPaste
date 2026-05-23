@@ -1,0 +1,24 @@
+package com.example.serialpaste
+
+import android.accessibilityservice.AccessibilityService
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
+
+class PasteAccessibilityService : AccessibilityService() {
+
+    private var pasted = false
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.action != "PASTE_ONCE") return
+        if (pasted) return
+        pasted = true
+
+        rootInActiveWindow?.let { root ->
+            root.findAccessibilityNodeInfosByText("")
+                .firstOrNull { it.isEditable }
+                ?.performAction(AccessibilityNodeInfo.ACTION_PASTE)
+        }
+    }
+
+    override fun onInterrupt() {}
+}

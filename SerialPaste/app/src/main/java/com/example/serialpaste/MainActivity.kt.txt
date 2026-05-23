@@ -1,0 +1,52 @@
+package com.example.serialpaste
+
+import android.content.Intent
+import android.os.Bundle
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+
+class MainActivity : AppCompatActivity() {
+
+    private val devices = mutableListOf<BluetoothDevice>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val spinner = findViewById<Spinner>(R.id.spinnerDevices)
+        val btnStart = findViewById<Button>(R.id.btnStart)
+        val btnStop = findViewById<Button>(R.id.btnStop)
+        val tvLog = findViewById<TextView>(R.id.tvLog)
+
+        val adapter = BluetoothAdapter.getDefaultAdapter()
+        devices.addAll(adapter.bondedDevices)
+
+        spinner.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            devices.map { it.name ?: it.address }
+        )
+
+        btnStart.setOnClickListener {
+            val addr = devices[spinner.selectedItemPosition].address
+            Intent(this, SerialService::class.java).apply {
+                putExtra("address", addr)
+                startService(this)
+            }
+            tvLog.append("已启动\n")
+        }
+
+        btnStop.setOnClickListener {
+            stopService(Intent(this, SerialService::class.java))
+            tvLog.append("已停止\n")
+        }
+
+        LogManager.onLog = {
+            runOnUiThread {
+                tvLog.append(it + "\n")
+            }
+        }
+    }
+}

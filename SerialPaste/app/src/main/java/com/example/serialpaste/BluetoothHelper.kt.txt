@@ -1,0 +1,25 @@
+package com.example.serialpaste
+
+import java.util.UUID
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothSocket
+
+object BluetoothHelper {
+
+    fun connect(address: String): BluetoothSocket {
+        val adapter = android.bluetooth.BluetoothAdapter.getDefaultAdapter()
+        val device = adapter.getRemoteDevice(address)
+
+        val uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+        val socket = device.createRfcommSocketToServiceRecord(uuid)
+        socket.connect()
+        return socket
+    }
+
+    fun getBondedDevices(context: Context): List<BluetoothDevice> {
+        return android.bluetooth.BluetoothAdapter
+            .getDefaultAdapter()
+            .bondedDevices
+            .toList()
+    }
+}
